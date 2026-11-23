@@ -54,10 +54,51 @@ namespace AutomationExercise.Pages
             waitHelper.ClickElement(HmBrandLink);
         }
 
+
         public bool IsBrandProductsTitleVisible()
         {
-            return waitHelper.WaitForElement(BrandProductsTitle).Displayed;
+            const int maxRetries = 2;
+
+            for (int attempt = 0; attempt <= maxRetries; attempt++)
+            {
+                if (driver.PageSource.Contains(
+                    "This website is under heavy load (queue full)",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    if (attempt == maxRetries)
+                    {
+                        throw new InvalidOperationException(
+                            "Automation Exercise is unavailable: queue full after retries.");
+                    }
+
+                    TestContext.Out.WriteLine(
+                        $"Server overloaded. Refresh attempt {attempt + 1}/{maxRetries}");
+
+
+                    Thread.Sleep(3000);
+                    driver.Navigate().Refresh();
+                    continue;
+                }
+
+                try
+                {
+                    return waitHelper.WaitForElement(BrandProductsTitle).Displayed;
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    if (!driver.PageSource.Contains(
+                        "This website is under heavy load (queue full)",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            throw new InvalidOperationException(
+                "Brand products page could not be loaded.");
         }
+
 
         public bool IsCurrentUrlForBrand(string brandName)
         {
