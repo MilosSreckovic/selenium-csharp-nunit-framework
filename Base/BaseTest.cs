@@ -37,6 +37,46 @@ namespace AutomationExercise.Base
             }
         }
 
+
+        protected void CloseGoogleAdIfPresent()
+        {
+            if (driver == null)
+                return;
+
+            driver.SwitchTo().DefaultContent();
+
+            foreach (IWebElement frame in driver.FindElements(
+                By.CssSelector("iframe[title='Advertisement']")))
+            {
+                try
+                {
+                    driver.SwitchTo().Frame(frame);
+
+                    var closeButtons = driver.FindElements(
+                        By.CssSelector("[aria-label='Close ad']"));
+
+                    if (closeButtons.Count > 0 && closeButtons[0].Displayed)
+                    {
+                        closeButtons[0].Click();
+                        TestContext.Out.WriteLine("Google Ad popup closed.");
+                        return;
+                    }
+                }
+                catch (WebDriverException)
+                {
+                    // The advertisement may disappear while being inspected.
+                }
+                finally
+                {
+                    driver.SwitchTo().DefaultContent();
+                    TestContext.Out.WriteLine(
+                        $"Advertisement iframes found: {driver.FindElements(By.CssSelector("iframe[title='Advertisement']")).Count}");
+
+                }
+            }
+        }
+
+
         [TearDown]
         public void TearDown()
         {

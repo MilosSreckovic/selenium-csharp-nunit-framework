@@ -17,13 +17,17 @@ namespace AutomationExercise.Tests
             homePage.ClickProducts();
             Assert.That(productsPage.AreBrandsVisible(), Is.True, "Brands section is not visible.");
 
+            CloseGoogleAdIfPresent();
             productsPage.ClickPoloBrand();
+            CloseGoogleAdIfPresent();
             TestContext.Out.WriteLine($"URL after Polo click: {driver!.Url}");
             TestContext.Out.WriteLine($"Page title: {driver.Title}");
             Assert.That(productsPage.IsBrandProductsTitleVisible(), Is.True, "Brand products title is not visible.");
             Assert.That(productsPage.IsCurrentUrlForBrand("Polo"), Is.True, "Polo brand page is not opened.");
 
+            CloseGoogleAdIfPresent();
             productsPage.ClickHmBrand();
+            CloseGoogleAdIfPresent();
             Assert.That(productsPage.IsBrandProductsTitleVisible(), Is.True, "Brand products title is not visible.");
             Assert.That(productsPage.IsCurrentUrlForBrand("H&M"), Is.True, "H&M brand page is not opened.");
         }
