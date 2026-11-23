@@ -37,18 +37,42 @@ namespace AutomationExercise.Utilities
                 { "mobile_number", "1234567890" }
             };
 
-            using var content = new FormUrlEncodedContent(formData);
 
-            using var response = await client.PostAsync(
-                "createAccount",
-                content
-            );
+            const int maxRetries = 2;
 
-            await ValidateResponse(
-                response,
-                201,
-                "User created!"
-            );
+            for (int attempt = 0; attempt <= maxRetries; attempt++)
+            {
+                using var content = new FormUrlEncodedContent(formData);
+
+                using var response = await client.PostAsync(
+                    "createAccount",
+                    content
+                );
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.ServiceUnavailable)
+                {
+                    if (attempt == maxRetries)
+                    {
+                        throw new HttpRequestException(
+                            "CreateUser failed: HTTP 503 after 3 attempts.");
+                    }
+
+                    TestContext.Out.WriteLine(
+                        $"CreateUser returned HTTP 503. Retry {attempt + 1}/{maxRetries}");
+
+                    await Task.Delay(3000);
+                    continue;
+                }
+
+                await ValidateResponse(
+                    response,
+                    201,
+                    "User created!"
+                );
+
+                return;
+            }
         }
 
         public async Task DeleteUser(
