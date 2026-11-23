@@ -30,8 +30,10 @@ namespace AutomationExercise.Pages
         private static By SearchedProductsTitle =>
             By.XPath("//h2[text()='Searched Products']");
 
+
         private static By FirstProductAddToCartButton =>
-            By.XPath("(//a[contains(@class,'add-to-cart') and contains(text(),'Add to cart')])[1]");
+            By.CssSelector(".features_items .productinfo a.add-to-cart");
+
 
         private static By AddedToCartModal =>
             By.Id("cartModal");

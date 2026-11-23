@@ -9,12 +9,19 @@ namespace AutomationExercise.Tests
         public void SearchProductsAndVerifyCartAfterLogin()
         {
             HomePage homePage = new(driver!);
-            ProductsPage productsPage = new (driver!);
-            CartPage cartPage = new (driver!);
-            LoginPage loginPage = new (driver!);
+            ProductsPage productsPage = new(driver!);
+            CartPage cartPage = new(driver!);
+            LoginPage loginPage = new(driver!);
+
 
             homePage.OpenHomePage();
+            CloseGoogleAdIfPresent();
+
             homePage.ClickProducts();
+            CloseGoogleAdIfPresent();
+
+            TestContext.Out.WriteLine(
+                $"Before search: URL = {driver!.Url}, Title = {driver.Title}");
 
             productsPage.SearchProduct("Blue Top");
             Assert.That(productsPage.AreSearchedProductsVisible(), Is.True);
