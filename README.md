@@ -1,31 +1,34 @@
 # Selenium C# NUnit E2E Automation Framework
 
-[![Selenium E2E Tests](https://github.com/MilosSreckovic/AutomationExerciseForSokin-CsharpSeleniumNunit/actions/workflows/selenium-tests.yml/badge.svg)](https://github.com/MilosSreckovic/AutomationExerciseForSokin-CsharpSeleniumNunit/actions/workflows/selenium-tests.yml)
+[![Selenium E2E Tests](https://github.com/MilosSreckovic/selenium-csharp-nunit-framework/actions/workflows/selenium-tests.yml/badge.svg)](https://github.com/MilosSreckovic/selenium-csharp-nunit-framework/actions/workflows/selenium-tests.yml)
 
-A UI test automation project built with **C#**, **Selenium WebDriver**, **NUnit**, and **.NET 10**. It demonstrates a maintainable Page Object Model (POM) structure, reusable browser test setup and wait utilities, and automated execution through GitHub Actions.
+A UI test automation framework built with **C#**, **Selenium WebDriver**, **NUnit**, and **.NET 10**.
+
+The project demonstrates maintainable Page Object Model (POM) architecture, reusable browser setup, explicit wait utilities, automated failure screenshots, and continuous integration through GitHub Actions.
 
 **Application under test:** [Automation Exercise](https://automationexercise.com/)
 
-## Tech stack
+## Tech Stack
 
 - C# / .NET 10
 - Selenium WebDriver
 - NUnit
+- Page Object Model (POM)
 - GitHub Actions
 
-## Test coverage
+## Test Coverage
 
-The repository currently organizes its UI tests into three areas:
+The framework contains three automated UI tests organized by application feature.
 
-| Test class | Focus |
-| --- | --- |
-| `LoginTests.cs` | Login-related scenarios |
-| `SearchAndCartTests.cs` | Product search and shopping-cart scenarios |
-| `BrandTests.cs` | Brand navigation and brand-product page checks |
+| Test Class              | Focus                                     |
+| ----------------------- | ----------------------------------------- |
+| `LoginTests.cs`         | Login-related scenarios                   |
+| `SearchAndCartTests.cs` | Product search and shopping cart          |
+| `BrandTests.cs`         | Brand navigation and product verification |
 
-For example, `ViewAndCartBrandProducts` checks that the home page and brand section are visible, then navigates to the Polo and H&M brand pages and verifies the brand heading and URL.
+The `ViewAndCartBrandProducts` scenario verifies brand navigation, including the Polo and H&M brand pages, their headings, and corresponding URLs.
 
-## Project structure
+## Project Structure
 
 ```text
 .
@@ -48,66 +51,119 @@ For example, `ViewAndCartBrandProducts` checks that the home page and brand sect
 │   ├── ApiHelper.cs
 │   └── WaitHelper.cs
 ├── .gitignore
-├── AutomationExerciseForSokin.csproj
-└── AutomationExerciseForSokin.slnx
+├── SeleniumNUnitFramework.csproj
+├── SeleniumNUnitFramework.slnx
+└── README.md
 ```
 
-Generated build output (`bin/` and `obj/`) is intentionally omitted.
+Generated directories such as `bin/` and `obj/` are excluded.
 
-## Framework design
+## Framework Design
 
-- **Page Object Model:** Page-specific elements and interactions live in `Pages/`, keeping test scenarios readable.
-- **Shared test setup:** `Base/BaseTest.cs` provides a central place for test infrastructure.
-- **Reusable utilities:** `Utilities/WaitHelper.cs` encapsulates element waits; `ApiHelper.cs` is also present in the project.
-- **Test organization:** NUnit test classes are grouped by application feature.
+### Page Object Model
 
-## Getting started
+Page-specific locators and interactions are encapsulated in dedicated Page Object classes, separating test logic from UI implementation details.
+
+### Reusable Test Setup
+
+`BaseTest.cs` provides centralized WebDriver initialization and cleanup using NUnit `[SetUp]` and `[TearDown]`.
+
+Chrome runs in headed mode locally and headless mode in GitHub Actions.
+
+### Explicit Wait Utilities
+
+`WaitHelper.cs` provides reusable methods for waiting for visible and clickable elements and handling transient Selenium interaction exceptions.
+
+### Screenshot on Failure
+
+When an NUnit test fails, the framework automatically attempts to:
+
+1. Capture a browser screenshot.
+2. Save it in the `Screenshots/` directory under the NUnit working directory.
+3. Attach it to the NUnit test result.
+4. Log the screenshot location.
+5. Close and dispose of the browser session.
+
+Screenshots are generated only for failed tests and require an active WebDriver session.
+
+## Getting Started
 
 ### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Google Chrome (for the existing Chrome-based Selenium execution)
+- Google Chrome
 - Git
 
-### Clone and run
+### Clone Repository
 
 ```bash
-git clone https://github.com/MilosSreckovic/AutomationExerciseForSokin-CsharpSeleniumNunit.git
-cd AutomationExerciseForSokin-CsharpSeleniumNunit
-dotnet restore
-dotnet test
+git clone https://github.com/MilosSreckovic/selenium-csharp-nunit-framework.git
+cd selenium-csharp-nunit-framework
 ```
 
-To run an individual test class:
+### Restore Dependencies
+
+```bash
+dotnet restore SeleniumNUnitFramework.slnx
+```
+
+### Build Project
+
+```bash
+dotnet build SeleniumNUnitFramework.slnx
+```
+
+### Run All Tests
+
+```bash
+dotnet test SeleniumNUnitFramework.slnx
+```
+
+### Run Specific Tests
 
 ```bash
 dotnet test --filter "FullyQualifiedName~BrandTests"
 ```
 
-To produce a TRX test result file:
+### Generate TRX Results
 
 ```bash
 dotnet test --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
 ```
 
-> Browser setup and headless behavior depend on the current implementation of `BaseTest.cs` and the GitHub Actions workflow.
+## Continuous Integration
 
-## Continuous integration
+GitHub Actions automatically executes the Selenium NUnit suite on:
 
-The project includes a GitHub Actions workflow at `.github/workflows/selenium-tests.yml`. It runs the .NET Selenium/NUnit suite in CI. The badge above reflects the latest workflow status; the suite has also completed a reported run with **3 passed and 0 failed**.
+- Pushes to `main`
+- Pull requests targeting `main`
+- Manual workflow dispatch
 
-[View workflow runs](https://github.com/MilosSreckovic/AutomationExerciseForSokin-CsharpSeleniumNunit/actions)
+The CI pipeline:
 
-## Notes on reliability
+1. Checks out the repository.
+2. Installs .NET 10.
+3. Configures Google Chrome.
+4. Restores dependencies and builds the project.
+5. Executes Selenium tests in headless mode.
+6. Uploads TRX results and available failure screenshots.
 
-UI tests can behave differently between local and CI environments. The brand-navigation scenario previously encountered a CI-only element timeout; a later CI run passed. This does not by itself establish the root cause or prove the test is free of intermittent failures.
+Test artifacts are retained for 14 days.
 
-## Potential improvements
+[View GitHub Actions workflow](https://github.com/MilosSreckovic/selenium-csharp-nunit-framework/actions/workflows/selenium-tests.yml)
 
-- Capture screenshots and current URLs automatically on test failures.
-- Publish test result artifacts from CI, if not already configured.
-- Re-run the suite to assess CI stability and investigate intermittent failures.
-- Expand documented test coverage after verifying each scenario's assertions.
+## Reliability Notes
+
+UI automation may be affected by dynamic content, advertisements, and differences between local and CI environments.
+
+The brand navigation test has previously encountered an intermittent element timeout. Screenshot capture improves failure diagnostics, but does not eliminate potential test instability.
+
+## Future Improvements
+
+- Investigate intermittent UI interaction failures.
+- Extend browser coverage.
+- Improve failure diagnostics and reporting.
+- Expand test scenarios as needed.
 
 ## Disclaimer
 
